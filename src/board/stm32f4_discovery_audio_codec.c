@@ -1631,6 +1631,21 @@ void DAC_Config(void)
   /* Enable DAC Channel1 */
   DAC_Cmd(AUDIO_DAC_CHANNEL, ENABLE);
 }
+
+// FIXME: See descriptions from header
+uint16_t EVAL_AUDIO_GetSampleCallBack(void) {
+    return 0;
+}
+
+void EVAL_AUDIO_TransferComplete_CallBack(uint32_t pBuffer, uint32_t Size) {
+}
+
+void EVAL_AUDIO_HalfTransfer_CallBack(uint32_t pBuffer, uint32_t Size) {
+}
+
+void EVAL_AUDIO_Error_CallBack(void* pData) {
+}
+
 /**
   * @}
   */
