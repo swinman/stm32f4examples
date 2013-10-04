@@ -8,7 +8,6 @@
 #define _USE_IOCTL	1
 
 #include "integer.h"
-#include "usbh_msc_core.h"
 
 /* Status of Disk Functions */
 typedef BYTE	DSTATUS;
