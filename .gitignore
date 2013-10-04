@@ -1,0 +1,19 @@
+#  Auto Generated Filese / Folders     #
+########################################
+# compile folders
+/bin*
+/Debug*
+/Release*
+
+# compile results
+*.bin
+*.eep
+*.elf
+*.lss
+*.map
+*.hex
+*.srec
+*.o
+*.a
+
+# vim:ft=gitignore
