@@ -45,7 +45,7 @@
 #include "stm32f4xx.h"
 #include "stm32f4_discovery.h"
 #include "stm32f4_discovery_lcd.h"
-#include "fonts.c"
+#include "fonts.h"
 
 /** @addtogroup Utilities
   * @{
