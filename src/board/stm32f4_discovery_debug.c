@@ -90,6 +90,7 @@ int Get_Peek_Key(void)
 	return (USART_ReceiveData(EVAL_COM1));
 }
 
+#ifdef UNDEF
 /**
   * @brief  Retargets the C library printf function to the USART.
   * @param  None
@@ -107,6 +108,7 @@ PUTCHAR_PROTOTYPE
 
   return ch;
 }
+#endif
 
 
 /****************** COPYRIGHT 2012 Embest Tech. Co., Ltd.*****END OF FILE******/
