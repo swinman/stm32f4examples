@@ -2,20 +2,26 @@
   ******************************************************************************
   * @file    usb_core.c
   * @author  MCD Application Team
-  * @version V2.0.0
-  * @date    22-July-2011
+  * @version V2.1.0
+  * @date    19-March-2012
   * @brief   USB-OTG Core Layer
   ******************************************************************************
   * @attention
   *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
   *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
   ******************************************************************************
   */
 
@@ -96,7 +102,7 @@ static void USB_OTG_EnableCommonInt(USB_OTG_CORE_HANDLE *pdev)
   USB_OTG_WRITE_REG32( &pdev->regs.GREGS->GOTGINT, 0xFFFFFFFF);
 #endif
   /* Clear any pending interrupts */
-  USB_OTG_WRITE_REG32( &pdev->regs.GREGS->GINTSTS, 0xFFFFFFFF);
+  USB_OTG_WRITE_REG32( &pdev->regs.GREGS->GINTSTS, 0xBFFFFFFF);
   /* Enable the interrupts in the INTMSK */
   int_mask.b.wkupintr = 1;
   int_mask.b.usbsuspend = 1;
@@ -253,13 +259,9 @@ USB_OTG_STS USB_OTG_SelectCore(USB_OTG_CORE_HANDLE *pdev,
 #ifdef USB_OTG_ULPI_PHY_ENABLED
     pdev->cfg.phy_itface       = USB_OTG_ULPI_PHY;
 #else
- #ifdef USB_OTG_EMBEDDED_PHY_ENABLED
+#ifdef USB_OTG_EMBEDDED_PHY_ENABLED
     pdev->cfg.phy_itface       = USB_OTG_EMBEDDED_PHY;
- #else
-   #ifdef USB_OTG_I2C_PHY_ENABLED
-    pdev->cfg.phy_itface       = USB_OTG_I2C_PHY;
-   #endif
- #endif
+#endif
 #endif
 
 #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
@@ -323,7 +325,6 @@ USB_OTG_STS USB_OTG_CoreInit(USB_OTG_CORE_HANDLE *pdev)
   USB_OTG_STS status = USB_OTG_OK;
   USB_OTG_GUSBCFG_TypeDef  usbcfg;
   USB_OTG_GCCFG_TypeDef    gccfg;
-  USB_OTG_GI2CCTL_TypeDef  i2cctl;
   USB_OTG_GAHBCFG_TypeDef  ahbcfg;
 
   usbcfg.d32 = 0;
@@ -351,15 +352,11 @@ USB_OTG_STS USB_OTG_CoreInit(USB_OTG_CORE_HANDLE *pdev)
 #ifdef USB_OTG_INTERNAL_VBUS_ENABLED
     usbcfg.b.ulpi_ext_vbus_drv = 0; /* Use internal VBUS */
 #else
- #ifdef USB_OTG_EXTERNAL_VBUS_ENABLED
+#ifdef USB_OTG_EXTERNAL_VBUS_ENABLED
     usbcfg.b.ulpi_ext_vbus_drv = 1; /* Use external VBUS */
- #endif
+#endif
 #endif
     usbcfg.b.term_sel_dl_pulse = 0; /* Data line pulsing using utmi_txvalid */
-    usbcfg.b.ulpi_utmi_sel     = 1; /* ULPI seleInterfacect */
-
-    usbcfg.b.phyif             = 0; /* 8 bits */
-    usbcfg.b.ddrsel            = 0; /* single data rate */
 
     usbcfg.b.ulpi_fsls = 0;
     usbcfg.b.ulpi_clk_sus_m = 0;
@@ -377,7 +374,7 @@ USB_OTG_STS USB_OTG_CoreInit(USB_OTG_CORE_HANDLE *pdev)
 
     }
   }
-  else /* FS interface (embedded Phy or I2C Phy) */
+  else /* FS interface (embedded Phy) */
   {
 
     usbcfg.d32 = USB_OTG_READ_REG32(&pdev->regs.GREGS->GUSBCFG);;
@@ -385,14 +382,10 @@ USB_OTG_STS USB_OTG_CoreInit(USB_OTG_CORE_HANDLE *pdev)
     USB_OTG_WRITE_REG32 (&pdev->regs.GREGS->GUSBCFG, usbcfg.d32);
     /* Reset after a PHY select and set Host mode */
     USB_OTG_CoreReset(pdev);
-    /* Enable the I2C interface and deactivate the power down*/
+    /* Deactivate the power down*/
     gccfg.d32 = 0;
     gccfg.b.pwdn = 1;
 
-    if(pdev->cfg.phy_itface == USB_OTG_I2C_PHY)
-    {
-      gccfg.b.i2cifen = 1;
-    }
     gccfg.b.vbussensingA = 1 ;
     gccfg.b.vbussensingB = 1 ;
 #ifndef VBUS_SENSING_ENABLED
@@ -406,32 +399,6 @@ USB_OTG_STS USB_OTG_CoreInit(USB_OTG_CORE_HANDLE *pdev)
 
     USB_OTG_WRITE_REG32 (&pdev->regs.GREGS->GCCFG, gccfg.d32);
     USB_OTG_BSP_mDelay(20);
-    /* Program GUSBCFG.OtgUtmifsSel to I2C*/
-    usbcfg.d32 = USB_OTG_READ_REG32(&pdev->regs.GREGS->GUSBCFG);
-
-    if(pdev->cfg.phy_itface == USB_OTG_I2C_PHY)
-    {
-      usbcfg.b.otgutmifssel = 1;
-    }
-
-    USB_OTG_WRITE_REG32 (&pdev->regs.GREGS->GUSBCFG, usbcfg.d32);
-
-    if(pdev->cfg.phy_itface == USB_OTG_I2C_PHY)
-    {
-      /*Program GI2CCTL.I2CEn*/
-      i2cctl.d32 = USB_OTG_READ_REG32(&pdev->regs.GREGS->GI2CCTL);
-      i2cctl.b.i2cdevaddr = 1;
-      i2cctl.b.i2cen = 0;
-      i2cctl.b.dat_se0 = 1;
-      i2cctl.b.addr = 0x2D;
-      USB_OTG_WRITE_REG32 (&pdev->regs.GREGS->GI2CCTL, i2cctl.d32);
-
-      USB_OTG_BSP_mDelay(200);
-
-      i2cctl.b.i2cen = 1;
-      USB_OTG_WRITE_REG32 (&pdev->regs.GREGS->GI2CCTL, i2cctl.d32);
-      USB_OTG_BSP_mDelay(200);
-    }
   }
   /* case the HS core is working in FS mode */
   if(pdev->cfg.dma_enable == 1)
@@ -670,7 +637,15 @@ USB_OTG_STS USB_OTG_CoreInitHost(USB_OTG_CORE_HANDLE *pdev)
   USB_OTG_WRITE_REG32(pdev->regs.PCGCCTL, 0);
 
   /* Initialize Host Configuration Register */
-  USB_OTG_InitFSLSPClkSel(pdev , HCFG_48_MHZ); /* in init phase */
+  if (pdev->cfg.phy_itface == USB_OTG_ULPI_PHY)
+  {
+    USB_OTG_InitFSLSPClkSel(pdev , HCFG_30_60_MHZ);
+  }
+  else
+  {
+    USB_OTG_InitFSLSPClkSel(pdev , HCFG_48_MHZ);
+  }
+  USB_OTG_ResetPort(pdev);
 
   hcfg.d32 = USB_OTG_READ_REG32(&pdev->regs.HREGS->HCFG);
   hcfg.b.fslssupp = 0;
@@ -693,9 +668,9 @@ USB_OTG_STS USB_OTG_CoreInitHost(USB_OTG_CORE_HANDLE *pdev)
   }
 #endif
 #ifdef USB_OTG_HS_CORE
-   if (pdev->cfg.coreID == USB_OTG_HS_CORE_ID)
+  if (pdev->cfg.coreID == USB_OTG_HS_CORE_ID)
   {
-   /* set Rx FIFO size */
+    /* set Rx FIFO size */
     USB_OTG_WRITE_REG32(&pdev->regs.GREGS->GRXFSIZ, RX_FIFO_HS_SIZE);
     nptxfifosize.b.startaddr = RX_FIFO_HS_SIZE;
     nptxfifosize.b.depth = TXH_NP_HS_FIFOSIZ;
@@ -722,7 +697,7 @@ USB_OTG_STS USB_OTG_CoreInitHost(USB_OTG_CORE_HANDLE *pdev)
   for (i = 0; i < pdev->cfg.host_channels; i++)
   {
     USB_OTG_WRITE_REG32( &pdev->regs.HC_REGS[i]->HCINT, 0xFFFFFFFF );
-    USB_OTG_WRITE_REG32( &pdev->regs.HC_REGS[i]->HCGINTMSK, 0 );
+    USB_OTG_WRITE_REG32( &pdev->regs.HC_REGS[i]->HCINTMSK, 0 );
   }
 #ifndef USE_OTG_MODE
   USB_OTG_DriveVbus(pdev, 1);
@@ -883,7 +858,7 @@ USB_OTG_STS USB_OTG_HC_Init(USB_OTG_CORE_HANDLE *pdev , uint8_t hc_num)
 {
   USB_OTG_STS status = USB_OTG_OK;
   uint32_t intr_enable = 0;
-  USB_OTG_HCGINTMSK_TypeDef  hcintmsk;
+  USB_OTG_HCINTMSK_TypeDef  hcintmsk;
   USB_OTG_GINTMSK_TypeDef    gintmsk;
   USB_OTG_HCCHAR_TypeDef     hcchar;
   USB_OTG_HCINTn_TypeDef     hcint;
@@ -955,7 +930,7 @@ USB_OTG_STS USB_OTG_HC_Init(USB_OTG_CORE_HANDLE *pdev , uint8_t hc_num)
   }
 
 
-  USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[hc_num]->HCGINTMSK, hcintmsk.d32);
+  USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK, hcintmsk.d32);
 
 
   /* Enable the top level host channel interrupt. */
@@ -1052,7 +1027,7 @@ USB_OTG_STS USB_OTG_HC_StartXfer(USB_OTG_CORE_HANDLE *pdev , uint8_t hc_num)
   if (pdev->cfg.dma_enable == 0) /* Slave mode */
   {
     if((pdev->host.hc[hc_num].ep_is_in == 0) &&
-        (pdev->host.hc[hc_num].xfer_len > 0))
+       (pdev->host.hc[hc_num].xfer_len > 0))
     {
       switch(pdev->host.hc[hc_num].ep_type)
       {
@@ -1282,7 +1257,7 @@ USB_OTG_STS USB_OTG_CoreInitDev (USB_OTG_CORE_HANDLE *pdev)
 
     if(pdev->cfg.phy_itface  == USB_OTG_ULPI_PHY)
     {
-       USB_OTG_InitDevSpeed (pdev , USB_OTG_SPEED_PARAM_HIGH);
+      USB_OTG_InitDevSpeed (pdev , USB_OTG_SPEED_PARAM_HIGH);
     }
     else /* set High speed phy in Full speed mode */
     {
@@ -1405,7 +1380,7 @@ USB_OTG_STS USB_OTG_EnableDevInt(USB_OTG_CORE_HANDLE *pdev)
   /* Disable all interrupts. */
   USB_OTG_WRITE_REG32( &pdev->regs.GREGS->GINTMSK, 0);
   /* Clear any pending interrupts */
-  USB_OTG_WRITE_REG32( &pdev->regs.GREGS->GINTSTS, 0xFFFFFFFF);
+  USB_OTG_WRITE_REG32( &pdev->regs.GREGS->GINTSTS, 0xBFFFFFFF);
   /* Enable the common interrupts */
   USB_OTG_EnableCommonInt(pdev);
 
@@ -2184,4 +2159,4 @@ void USB_OTG_SetEPStatus (USB_OTG_CORE_HANDLE *pdev , USB_OTG_EP *ep , uint32_t 
 * @}
 */
 
-/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
