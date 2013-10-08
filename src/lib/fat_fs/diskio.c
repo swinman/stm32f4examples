@@ -7,6 +7,8 @@
 
 #include "diskio.h"
 
+extern USB_OTG_CORE_HANDLE      USB_OTG_Core;
+
 /*-----------------------------------------------------------------------*/
 /* Correspondence between physical drive number and physical drive.      */
 
@@ -23,7 +25,7 @@ DSTATUS disk_initialize (BYTE drv)    /* Physical drive nmuber (0..) */
 {
   DSTATUS stat = STA_NOINIT;
 
-  if(HCD_IsDeviceConnected(&USB_OTG_Core_dev))
+  if(HCD_IsDeviceConnected(&USB_OTG_Core))
   {
     stat &= ~STA_NOINIT;
   }
