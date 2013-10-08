@@ -34,7 +34,7 @@
   *    function will do nothing and HSI still used as system clock source. User can
   *    add some code to deal with this issue inside the SetSysClock() function.
   *
-  * 4. The default value of HSE crystal is set to 25MHz, refer to "HSE_VALUE" define
+  * 4. The default value of HSE crystal is set to 8 MHz, refer to "HSE_VALUE" define
   *    in "stm32f4xx.h" file. When HSE is used as system clock source, directly or
   *    through PLL, and you are using different crystal you have to adapt the HSE
   *    value to your own configuration.
@@ -56,9 +56,9 @@
   *-----------------------------------------------------------------------------
   *        APB2 Prescaler                         | 2
   *-----------------------------------------------------------------------------
-  *        HSE Frequency(Hz)                      | 25000000
+  *        HSE Frequency(Hz)                      | 8000000
   *-----------------------------------------------------------------------------
-  *        PLL_M                                  | 25
+  *        PLL_M                                  | 8
   *-----------------------------------------------------------------------------
   *        PLL_N                                  | 336
   *-----------------------------------------------------------------------------
@@ -74,7 +74,7 @@
   *-----------------------------------------------------------------------------
   *        VDD(V)                                 | 3.3
   *-----------------------------------------------------------------------------
-  *        Main regulator output voltage          | Scale1 mode
+  *        High Performance mode                  | Enabled
   *-----------------------------------------------------------------------------
   *        Flash Latency(WS)                      | 5
   *-----------------------------------------------------------------------------
@@ -152,7 +152,7 @@
 
 /************************* PLL Parameters *************************************/
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
-#define PLL_M      25
+#define PLL_M      8
 #define PLL_N      336
 
 /* SYSCLK = PLL_VCO / PLL_P */
@@ -373,9 +373,9 @@ static void SetSysClock(void)
 
   if (HSEStatus == (uint32_t)0x01)
   {
-    /* Select regulator voltage output Scale 1 mode, System frequency up to 168 MHz */
+    /* Enable high performance mode, System frequency up to 168 MHz */
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-    PWR->CR |= PWR_CR_VOS;
+    PWR->CR |= PWR_CR_PMODE;
 
     /* HCLK = SYSCLK / 1*/
     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
