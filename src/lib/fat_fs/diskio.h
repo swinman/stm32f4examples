@@ -3,6 +3,7 @@
 /-----------------------------------------------------------------------*/
 
 #ifndef _DISKIO
+#include "usb_hcd.h"
 
 #define _READONLY	0	/* 1: Read-only mode */
 #define _USE_IOCTL	1
