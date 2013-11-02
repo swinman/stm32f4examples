@@ -30,7 +30,9 @@
 #define __USB_CONF__H__
 
 /* Includes ------------------------------------------------------------------*/
-#include "usb_conf.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx.h"
+#include "stm32f4_discovery.h"
 
 /** @addtogroup USB_OTG_DRIVER
   * @{
@@ -60,8 +62,8 @@
  //#define USE_USB_OTG_FS
 #endif /* USE_USB_OTG_FS */
 
-#ifdef USE_USB_OTG_FS
- #define USB_OTG_FS_CORE
+#ifdef USE_USB_OTG_HS
+// #define USB_OTG_HS_CORE
 #endif
 
 /****************** USB OTG HS PHY CONFIGURATION *******************************
@@ -97,40 +99,9 @@
  #define USB_OTG_HS_CORE
 #endif
 
-/*******************************************************************************
-*                      FIFO Size Configuration in Device mode
-*
-*  (i) Receive data FIFO size = RAM for setup packets +
-*                   OUT endpoint control information +
-*                   data OUT packets + miscellaneous
-*      Space = ONE 32-bits words
-*     --> RAM for setup packets = 10 spaces
-*        (n is the nbr of CTRL EPs the device core supports)
-*     --> OUT EP CTRL info      = 1 space
-*        (one space for status information written to the FIFO along with each
-*        received packet)
-*     --> data OUT packets      = (Largest Packet Size / 4) + 1 spaces
-*        (MINIMUM to receive packets)
-*     --> OR data OUT packets  = at least 2*(Largest Packet Size / 4) + 1 spaces
-*        (if high-bandwidth EP is enabled or multiple isochronous EPs)
-*     --> miscellaneous = 1 space per OUT EP
-*        (one space for transfer complete status information also pushed to the
-*        FIFO with each endpoint's last packet)
-*
-*  (ii)MINIMUM RAM space required for each IN EP Tx FIFO = MAX packet size for
-*       that particular IN EP. More space allocated in the IN EP Tx FIFO results
-*       in a better performance on the USB and can hide latencies on the AHB.
-*
-*  (iii) TXn min size = 16 words. (n  : Transmit FIFO index)
-*   (iv) When a TxFIFO is not used, the Configuration should be as follows:
-*       case 1 :  n > m    and Txn is not used    (n,m  : Transmit FIFO indexes)
-*       --> Txm can use the space allocated for Txn.
-*       case2  :  n < m    and Txn is not used    (n,m  : Transmit FIFO indexes)
-*       --> Txn should be configured with the minimum space of 16 words
-*  (v) The FIFO is used optimally when used TxFIFOs are allocated in the top
-*       of the FIFO.Ex: use EP1 and EP2 as IN instead of EP1 and EP3 as IN ones.
-*******************************************************************************/
-
+#ifdef USE_USB_OTG_FS
+ #define USB_OTG_FS_CORE
+#endif
 /*******************************************************************************
 *                     FIFO Size Configuration in Host mode
 *
@@ -153,20 +124,14 @@
 /****************** USB OTG HS CONFIGURATION **********************************/
 #ifdef USB_OTG_HS_CORE
  #define RX_FIFO_HS_SIZE                          512
- #define TX0_FIFO_HS_SIZE                         512
- #define TX1_FIFO_HS_SIZE                         512
- #define TX2_FIFO_HS_SIZE                          0
- #define TX3_FIFO_HS_SIZE                          0
- #define TX4_FIFO_HS_SIZE                          0
- #define TX5_FIFO_HS_SIZE                          0
- #define TXH_NP_HS_FIFOSIZ                         96
- #define TXH_P_HS_FIFOSIZ                          96
+ #define TXH_NP_HS_FIFOSIZ                        256
+ #define TXH_P_HS_FIFOSIZ                         256
 
 // #define USB_OTG_HS_LOW_PWR_MGMT_SUPPORT
 // #define USB_OTG_HS_SOF_OUTPUT_ENABLED
 
 // #define USB_OTG_INTERNAL_VBUS_ENABLED
- #define USB_OTG_EXTERNAL_VBUS_ENABLED
+#define USB_OTG_EXTERNAL_VBUS_ENABLED
 
  #ifdef USE_ULPI_PHY
   #define USB_OTG_ULPI_PHY_ENABLED
@@ -175,29 +140,22 @@
    #define USB_OTG_EMBEDDED_PHY_ENABLED
  #endif
  #define USB_OTG_HS_INTERNAL_DMA_ENABLED
- #define USB_OTG_HS_DEDICATED_EP1_ENABLED
+// #define USB_OTG_HS_DEDICATED_EP1_ENABLED
 #endif
 
 /****************** USB OTG FS CONFIGURATION **********************************/
 #ifdef USB_OTG_FS_CORE
  #define RX_FIFO_FS_SIZE                          128
- #define TX0_FIFO_FS_SIZE                          64
- #define TX1_FIFO_FS_SIZE                         128
- #define TX2_FIFO_FS_SIZE                          0
- #define TX3_FIFO_FS_SIZE                          0
- #define TXH_NP_HS_FIFOSIZ                         96
- #define TXH_P_HS_FIFOSIZ                          96
+ #define TXH_NP_FS_FIFOSIZ                         96
+ #define TXH_P_FS_FIFOSIZ                          96
 
 // #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT
 // #define USB_OTG_FS_SOF_OUTPUT_ENABLED
 #endif
 
-/****************** USB OTG MISC CONFIGURATION ********************************/
-//#define VBUS_SENSING_ENABLED
-
 /****************** USB OTG MODE CONFIGURATION ********************************/
-//#define USE_HOST_MODE
-#define USE_DEVICE_MODE
+#define USE_HOST_MODE
+//#define USE_DEVICE_MODE
 //#define USE_OTG_MODE
 
 #ifndef USB_OTG_FS_CORE
