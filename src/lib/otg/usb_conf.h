@@ -58,6 +58,8 @@
 *  The USE_EMBEDDED_PHY symbol is defined in the project compiler preprocessor
 *  when FS core is used.
 *******************************************************************************/
+#define USE_USB_OTG_FS
+
 #ifndef USE_USB_OTG_FS
  //#define USE_USB_OTG_FS
 #endif /* USE_USB_OTG_FS */
