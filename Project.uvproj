@@ -7,11 +7,9 @@
 
 <FilePath>..\src\main.c</FilePath>
 <FilePath>..\src\stm32fxxx_it.c</FilePath>
+
 <FilePath>..\src\system_stm32f4xx.c</FilePath>
 <FilePath>..\..\..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f4xx.s</FilePath>
-
-<FilePath>..\src\usbh_usr_lcd.c</FilePath>
-<FilePath>..\src\usbh_usr_app_lcd.c</FilePath>
 
 <newfold>
     <place>./src/lib/usb/otg</place>
@@ -27,6 +25,8 @@
     <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_hcs.c</FilePath>
     <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_ioreq.c</FilePath>
     <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_stdreq.c</FilePath>
+    <FilePath>..\src\usbh_usr_app_lcd.c</FilePath>
+    <FilePath>..\src\usbh_usr_lcd.c</FilePath>
 </newfold>
 
 <newfold>
