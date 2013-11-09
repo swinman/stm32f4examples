@@ -46,7 +46,6 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-
 #include "usb_bsp.h"
 
 /** @addtogroup USBH_USER
@@ -64,6 +63,7 @@
 #define USE_ACCURATE_TIME
 #define TIM_MSEC_DELAY                     0x01
 #define TIM_USEC_DELAY                     0x02
+// FIXME : this should be port D, PIN 5
 #define HOST_OVRCURR_PORT                  GPIOD
 #define HOST_OVRCURR_LINE                  GPIO_Pin_11
 #define HOST_OVRCURR_PORT_SOURCE           GPIO_PortSourceGPIOD
@@ -268,7 +268,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 
   RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_OTG_HS |
                          RCC_AHB1Periph_OTG_HS_ULPI, ENABLE);
- #endif //USB_OTG_HS
+#endif //USB_OTG_HS
 
 #ifdef USE_USB_OTG_HS
   /* Enable the OTG ID Detect Fuciton */
@@ -418,6 +418,23 @@ void  USB_OTG_BSP_ConfigVBUS(USB_OTG_CORE_HANDLE *pdev)
 }
 
 /**
+  * @brief  _uDelay
+  *         This function provides delay time in micro sec
+  * @param  usec : Value of delay required in micro sec
+  * @retval None
+  */
+static void _uDelay (uint32_t usec)
+{
+  __IO uint32_t count = 0;
+  const uint32_t utime = (120 * usec / 7);
+  do {
+    if ( ++count > utime ) {
+      return ;
+    }
+  } while (1);
+}
+
+/**
   * @brief  USB_OTG_BSP_TimeInit
   *         Initializes delay unit using Timer2
   * @param  None
@@ -464,28 +481,9 @@ void USB_OTG_BSP_uDelay (const uint32_t usec)
     if ( ++count > utime ) {
       return ;
     }
-  }
-  while (1);
+  } while (1);
 #endif
 
-}
-
-/**
-  * @brief  _uDelay
-  *         This function provides delay time in micro sec
-  * @param  usec : Value of delay required in micro sec
-  * @retval None
-  */
-static void _uDelay (uint32_t usec)
-{
-  __IO uint32_t count = 0;
-  const uint32_t utime = (120 * usec / 7);
-  do {
-    if ( ++count > utime ) {
-      return ;
-    }
-  }
-  while (1);
 }
 
 /**
@@ -558,7 +556,7 @@ static void BSP_SetTime(uint8_t unit)
   TIM_ITConfig(TIM2, TIM_IT_Update, DISABLE);
 
 
-  if(unit == TIM_USEC_DELAY) {
+  if (unit == TIM_USEC_DELAY) {
     TIM_TimeBaseStructure.TIM_Period = 11;
   } else if(unit == TIM_MSEC_DELAY) {
     TIM_TimeBaseStructure.TIM_Period = 11999;

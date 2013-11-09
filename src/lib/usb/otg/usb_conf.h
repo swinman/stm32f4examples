@@ -30,7 +30,6 @@
 #define __USB_CONF__H__
 
 /* Includes ------------------------------------------------------------------*/
- #include "stm32f4xx.h"
 #include "stm32f4xx.h"
 #include "stm32f4_discovery.h"
 
