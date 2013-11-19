@@ -463,14 +463,17 @@ endif
 # ------------------------ ctags --------------------------------         {{{2
 ctags:
 	@echo "Making tags, cscope.out and taghighlight files"
-	-@(cd $(BASE_DIR) && cscope -Rb)
-	@(cd $(BASE_DIR) && $(CTAGS) -R)
+	-@(cd $(BASE_DIR) && \
+	    echo "$$(find . -name "*.[ch]")" > cscope.files && \
+	    cscope -Rkb -i cscope.files)
+	@(cd $(BASE_DIR) && $(CTAGS) -R --exclude="*~" --exclude=".git")
 	@(cd $(BASE_DIR) && python $(TAGHL) --ctags-file tags --source-root .)
 # END: ------------------- ctags --------------------------------         2}}}
 
 # ----------------------- install -------------------------------         {{{2
+# ...................... sam4sd32c ..............................         {{{3
 ifeq ($(DEVICE), SAM4SD32C)
-install: $(OUTPUT_FILE_PATH)
+install: $(ELF)
 	JLinkGDBServer -vd -device AT91SAM4SD32C &
 	@echo ""
 	@echo "calling sleep 1 sec"
@@ -478,22 +481,24 @@ install: $(OUTPUT_FILE_PATH)
 	@echo ""
 	@echo "wake from sleep"
 	@echo ""
-	arm-none-eabi-gdb -n --batch -se $(OUTPUT_FILE_PATH) \
+	arm-none-eabi-gdb -n --batch -se $(ELF) \
 	    -ex 'target remote localhost:2331' \
 	    -ex 'monitor reset' \
-	    -ex 'load $(OUTPUT_FILE_PATH)' \
+	    -ex 'load $(ELF)' \
 	    -ex 'monitor reset' \
 	    -ex 'monitor go'
 	@echo ""
 	killall JLinkGDBServer
 
 else
-
 ifeq ($(DEVICE), SAM4SD32C)
 BOARD = atmel_sams4_xplained_pro.cfg
 else
 BOARD = stm32f4discovery.cfg
 endif
+
+# END: ................. sam4sd32c ..............................         3}}}
+# find in /usr/share/openocd/scripts
 
 install: $(ELF)
 	openocd -f board/$(BOARD) \
@@ -502,8 +507,37 @@ install: $(ELF)
 	    -c "verify_image $(ELF) 0x00000000 elf" \
 	    -c "reset run" \
 	    -c "shutdown"
+
+swdinstall: $(ELF)
+	openocd -f interface/jlink.cfg \
+	    -f target/stm32f4x.cfg \
+	    -c reset_config srst_only srst_nogate \
+	    -c init -c "reset init" \
+	    -c "flash write_image erase $(ELF)" \
+	    -c "verify_image $(ELF) 0x00000000 elf" \
+	    -c "reset run" \
+	    -c "shutdown"
+
+# -vd : verify after load
+jinstall: $(ELF)
+	JLinkGDBServer -vd -device STM32F407VG -if SWD &
+	@echo ""
+	@echo "calling sleep 1 sec"
+	@sleep 2
+	@echo ""
+	@echo "wake from sleep"
+	@echo ""
+	arm-none-eabi-gdb -n --batch -se $(ELF) \
+	    -ex 'target remote localhost:2331' \
+	    -ex 'monitor reset' \
+	    -ex 'load $(ELF)' \
+	    -ex 'monitor reset' \
+	    -ex 'monitor go'
+	@echo ""
+	killall JLinkGDBServer
 endif
 # END: ------------------ install -------------------------------         2}}}
+
 # END: ================= MAKE ALL ===============================         1}}}
 
 # =================== GLOBAL EXPORTS ============================         {{{1
