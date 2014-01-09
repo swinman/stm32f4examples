@@ -26,17 +26,17 @@ a word data buffer from FLASH memory to embedded SRAM memory.
 DMA2 Stream0 channel0 is configured to transfer the contents of a 32-word data
 buffer stored in Flash memory to the reception buffer declared in RAM.
 
-The start of transfer is triggered by software. DMA2 Stream0 channel0 memory-to-memory
-transfer is enabled. Source and destination addresses incrementing is also enabled.
-The transfer is started by setting the Channel enable bit for DMA2 Stream0 channel0.
-At the end of the transfer a Transfer Complete interrupt is generated since it
-is enabled. The Transfer Complete Interrupt pending bit is then cleared.
-When the DMA transfer is completed the DMA Stream is disabled by hardware.
-The main application can check on the Stream Enable status to detect the end of
-transfer or can also check on the number of remaining transfers which should be
-equal to 0 at the end of the transfer.
-A comparison between the source and destination buffers is done to check that all
-data have been correctly transferred.
+The start of transfer is triggered by software. DMA2 Stream0 channel0
+memory-to-memory transfer is enabled. Source and destination addresses
+incrementing is also enabled.  The transfer is started by setting the Channel
+enable bit for DMA2 Stream0 channel0.  At the end of the transfer a Transfer
+Complete interrupt is generated since it is enabled. The Transfer Complete
+Interrupt pending bit is then cleared.  When the DMA transfer is completed the
+DMA Stream is disabled by hardware.  The main application can check on the
+Stream Enable status to detect the end of transfer or can also check on the
+number of remaining transfers which should be equal to 0 at the end of the
+transfer.  A comparison between the source and destination buffers is done to
+check that all data have been correctly transferred.
 
 STM32 Eval board's LEDs can be used to monitor the transfer status:
  - LED4 is ON when the program starts.
@@ -47,8 +47,8 @@ STM32 Eval board's LEDs can be used to monitor the transfer status:
    buffer is passed.
 
 It is possible to select a different Stream and/or channel for the DMA transfer
-example by modifying defines values in the file main.h.
-Note that only DMA2 Streams are able to perform Memory-to-Memory transfers.
+example by modifying defines values in the file main.h.  Note that only DMA2
+Streams are able to perform Memory-to-Memory transfers.
 
 There are different options to check on the DMA end of transfer:
  1. Use DMA Transfer Complete interrupt.

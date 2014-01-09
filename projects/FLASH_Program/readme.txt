@@ -23,15 +23,16 @@
 This example provides a description of how to program the STM32F4xx FLASH.
 
 After Reset, the Flash memory Program/Erase Controller is locked. To unlock it,
-the FLASH_Unlock function is used.
-Before programming the desired addresses, an erase operation is performed using
-the flash erase sector feature. The erase procedure starts with the calculation of
-the number of sector to be used. Then all these sectors will be erased one by one by
-calling FLASH_EraseSector function.
+the FLASH_Unlock function is used.  Before programming the desired addresses,
+an erase operation is performed using the flash erase sector feature. The erase
+procedure starts with the calculation of the number of sector to be used. Then
+all these sectors will be erased one by one by calling FLASH_EraseSector
+function.
 
 Once this operation is finished, the programming operation will be performed by
 using the FLASH_ProgramWord function. The written data is then checked and the
-result of the programming operation is stored into the MemoryProgramStatus variable.
+result of the programming operation is stored into the MemoryProgramStatus
+variable.
 
 
 @par Directory contents
