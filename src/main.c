@@ -20,7 +20,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4_discovery.h"
+#include "board/stm32f4_discovery.h"
 
 
 /** @addtogroup STM32F4_Discovery_Peripheral_Examples
@@ -36,8 +36,10 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 
 /* Private define ------------------------------------------------------------*/
 
-#define FLASH_USER_START_ADDR   ADDR_FLASH_SECTOR_2   /* Start @ of user Flash area */
-#define FLASH_USER_END_ADDR     ADDR_FLASH_SECTOR_5   /* End @ of user Flash area */
+#define FLASH_USER_START_ADDR   ADDR_FLASH_SECTOR_2
+  /* Start @ of user Flash area */
+#define FLASH_USER_END_ADDR     ADDR_FLASH_SECTOR_5
+  /* End @ of user Flash area */
 
 /* Base address of the Flash sectors */
 #define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base @ of Sector 0, 16 Kbytes */
@@ -69,8 +71,7 @@ uint32_t GetSector(uint32_t Address);
   * @param  None
   * @retval None
   */
-int main(void)
-{
+int main(void) {
   /*!< At this stage the microcontroller clock setting is already configured,
        this is done through SystemInit() function which is called from startup
        file (startup_stm32f4xx.s) before to branch to application main.
@@ -92,17 +93,13 @@ int main(void)
   StartSector = GetSector(FLASH_USER_START_ADDR);
   EndSector = GetSector(FLASH_USER_END_ADDR);
 
-  for (i = StartSector; i < EndSector; i += 8)
-  {
+  for (i = StartSector; i < EndSector; i += 8) {
     /* Device voltage range supposed to be [2.7V to 3.6V], the operation will
        be done by word */
-    if (FLASH_EraseSector(i, VoltageRange_3) != FLASH_COMPLETE)
-    {
+    if (FLASH_EraseSector(i, VoltageRange_3) != FLASH_COMPLETE) {
       /* Error occurred while sector erase.
          User can add here some code to deal with this error  */
-      while (1)
-      {
-      }
+      while (1);
     }
   }
 
@@ -111,19 +108,13 @@ int main(void)
 
   Address = FLASH_USER_START_ADDR;
 
-  while (Address < FLASH_USER_END_ADDR)
-  {
-    if (FLASH_ProgramWord(Address, DATA_32) == FLASH_COMPLETE)
-    {
+  while (Address < FLASH_USER_END_ADDR) {
+    if (FLASH_ProgramWord(Address, DATA_32) == FLASH_COMPLETE) {
       Address = Address + 4;
-    }
-    else
-    {
+    } else {
       /* Error occurred while writing data in Flash memory.
          User can add here some code to deal with this error */
-      while (1)
-      {
-      }
+      while (1);
     }
   }
 
@@ -137,21 +128,17 @@ int main(void)
   Address = FLASH_USER_START_ADDR;
   MemoryProgramStatus = 0x0;
 
-  while (Address < FLASH_USER_END_ADDR)
-  {
+  while (Address < FLASH_USER_END_ADDR) {
     data32 = *(__IO uint32_t*)Address;
 
-    if (data32 != DATA_32)
-    {
+    if( data32 != DATA_32 ) {
       MemoryProgramStatus++;
     }
 
     Address = Address + 4;
   }
 
-  while (1)
-  {
-  }
+  while (1);
 }
 
 /**
@@ -159,56 +146,32 @@ int main(void)
   * @param  None
   * @retval The sector of a given address
   */
-uint32_t GetSector(uint32_t Address)
-{
+uint32_t GetSector(uint32_t Address) {
   uint32_t sector = 0;
 
-  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0))
-  {
+  if((Address < ADDR_FLASH_SECTOR_1) && (Address >= ADDR_FLASH_SECTOR_0)) {
     sector = FLASH_Sector_0;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_2) && (Address >= ADDR_FLASH_SECTOR_1)) {
     sector = FLASH_Sector_1;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_3) && (Address >= ADDR_FLASH_SECTOR_2)) {
     sector = FLASH_Sector_2;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_4) && (Address >= ADDR_FLASH_SECTOR_3)) {
     sector = FLASH_Sector_3;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_5) && (Address >= ADDR_FLASH_SECTOR_4)) {
     sector = FLASH_Sector_4;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_6) && (Address >= ADDR_FLASH_SECTOR_5)) {
     sector = FLASH_Sector_5;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_7) && (Address >= ADDR_FLASH_SECTOR_6)) {
     sector = FLASH_Sector_6;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_8) && (Address >= ADDR_FLASH_SECTOR_7))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_8) && (Address >= ADDR_FLASH_SECTOR_7)) {
     sector = FLASH_Sector_7;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_9) && (Address >= ADDR_FLASH_SECTOR_8))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_9) && (Address >= ADDR_FLASH_SECTOR_8)) {
     sector = FLASH_Sector_8;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_10) && (Address >= ADDR_FLASH_SECTOR_9))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_10) && (Address >= ADDR_FLASH_SECTOR_9)) {
     sector = FLASH_Sector_9;
-  }
-  else if((Address < ADDR_FLASH_SECTOR_11) && (Address >= ADDR_FLASH_SECTOR_10))
-  {
+  } else if((Address < ADDR_FLASH_SECTOR_11) && (Address >= ADDR_FLASH_SECTOR_10)) {
     sector = FLASH_Sector_10;
-  }
-  else/*(Address < FLASH_END_ADDR) && (Address >= ADDR_FLASH_SECTOR_11))*/
-  {
+  } else/*(Address < FLASH_END_ADDR) && (Address >= ADDR_FLASH_SECTOR_11))*/ {
     sector = FLASH_Sector_11;
   }
 
@@ -224,15 +187,12 @@ uint32_t GetSector(uint32_t Address)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t* file, uint32_t line)
-{
+void assert_failed(uint8_t* file, uint32_t line) {
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
   /* Infinite loop */
-  while (1)
-  {
-  }
+  while (1);
 }
 #endif
 
@@ -245,3 +205,5 @@ void assert_failed(uint8_t* file, uint32_t line)
   */
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/
+
+// vim: shiftwidth=2
